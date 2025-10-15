@@ -3,10 +3,15 @@ import path from 'path';
 import { pickProducts } from './pick-products.js';
 import { fetchAllProducts } from './fetch-all-products.js';
 import { getLoginCookies, submitOrdered, addToCart, chooseDateAndSubmit } from './api-interactions.js';
+import { getDateRange } from './console-interactions.js';
+import { getFormatedWeekdaysRange } from './date-utils.js';
 
-const ORDER_DATE = '2025-10-17';
-const LOGIN = 'khabaznia-dmytro';
-const PASSWORD = '123';
+
+// --------------------  CONFIG  ------------------------
+const LOGIN = 'YOUR_LOGIN';
+const PASSWORD = 'YOUR_PASSWORD';
+// --------------------  END OF CONFIG  ------------------------
+
 
 const writeResponseToHtml = (responseText, filename) => {
 	const outputDir = 'output';
@@ -36,7 +41,7 @@ const loadProductsData = async () => {
 		return products;
 }
 
-const pickProductsAndOrder = async () => {
+const pickProductsAndOrder = async (orderDate) => {
 	const products = await loadProductsData().catch(error => {
 		console.error("Error loading products data", error);
 		throw error;
@@ -59,7 +64,7 @@ const pickProductsAndOrder = async () => {
 	}));
 	// const submitPageText = await getSubmitPage(cookies);
 	const submitted = await submitOrdered(cookies, pickedProducts.map(product => product.pid));
-	const dateResponseText = await chooseDateAndSubmit(cookies, ORDER_DATE);
+	const dateResponseText = await chooseDateAndSubmit(cookies, orderDate);
 
 	// Write response texts to HTML files
 	// writeResponseToHtml(submitPageText, 'submit-page.html');
@@ -73,4 +78,11 @@ const pickProductsAndOrder = async () => {
 	return products;
 }
 
-pickProductsAndOrder();
+(async () => {
+	const dates = await getDateRange()
+	const weekdays = getFormatedWeekdaysRange(dates.startDate, dates.endDate);
+	console.log(weekdays);
+	weekdays.map(async (weekday) => {
+		await pickProductsAndOrder(weekday);
+	});
+})();
