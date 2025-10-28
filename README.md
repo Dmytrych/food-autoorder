@@ -1,5 +1,7 @@
 # food-autoorder
 
+JS script which orders random meals from Gud Food for the specified date range.
+
 ## How to launch
 
 1) Run `pnpm install`.
